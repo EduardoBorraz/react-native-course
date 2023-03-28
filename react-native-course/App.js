@@ -2,6 +2,7 @@ import { useState } from "react";
 import { StatusBar } from "expo-status-bar";
 import { TouchableOpacity, Image, StyleSheet, Text, View } from "react-native";
 import * as ImagePicker from "expo-image-picker";
+import * as Sharing from "expo-sharing";
 
 export default function App() {
   const [text] = useState("Eduardo");
@@ -21,20 +22,35 @@ export default function App() {
     setPicker({ localUri: pickerResult.uri });
   };
 
+  const openShareDialog = async () => {
+    if (!(await Sharing.isAvailableAsync())) {
+      alert("Sharing, is not available on your device");
+      return;
+    }
+
+    await Sharing.shareAsync(picker.localUri);
+  };
+
   return (
     <View style={styles.container}>
       <StatusBar style="auto" backgroundColor="#303F9F" />
       <Text style={styles.title}>{text}!</Text>
-      <Image
-        source={{
-          uri:
-            picker !== null ? picker.localUri : "https://picsum.photos/200/200",
-        }}
-        style={styles.imge}
-      />
-      <TouchableOpacity style={styles.button} onPress={handleOpenImagePicker}>
-        <Text style={styles.buttonText}>Buscar Imagen</Text>
+      <TouchableOpacity onPress={handleOpenImagePicker}>
+        <Image
+          source={{
+            uri:
+              picker !== null
+                ? picker.localUri
+                : "https://picsum.photos/200/200",
+          }}
+          style={styles.imge}
+        />
       </TouchableOpacity>
+      {picker && (
+        <TouchableOpacity style={styles.button} onPress={openShareDialog}>
+          <Text style={styles.buttonText}>Compartir Imagen</Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 }
